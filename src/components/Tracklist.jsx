@@ -1,16 +1,15 @@
 import './Tracklist.css';
 import Track from './Track';
 
-export default function Tracklist({ searchResults }) {
+export default function Tracklist({ tracks, onAddTrack, onRemoveTrack, isRemoval }) {
 
     return(
-        <section className='Tracklist'>
-            <h2>Results</h2>
+        <div>
             {
-                searchResults.map((track) => {
-                    <Track track={track} />
-                })
+                tracks.map((track) => (
+                    <Track key={track.id} track={track} onAddTrack={onAddTrack} onRemoveTrack={onRemoveTrack} isRemoval={isRemoval} />
+                ))
             }
-        </section>
+        </div>
     );
 }

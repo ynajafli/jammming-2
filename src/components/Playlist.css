@@ -1,6 +1,6 @@
 .Playlist {
     background-color: blueviolet;
-    height: 500px;
+    min-height: 500px;
     width: 300px;
     padding: 10px;
 }

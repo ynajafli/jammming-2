@@ -1,21 +1,19 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import './App.css'
 import SearchBar from './components/SearchBar'
 import Playlist from './components/Playlist'
 import SearchResults from './components/SearchResults'
+import Spotify from './util/Spotify'
 
 function App() {
 
-  const [searchResults, setSearchResults] = useState([
-    { name: 'Nightcrawler', artist: 'Travis Scott', album: 'Rodeo', id: 1, uri: 'spotify:track:xxxx' },
-    { name: 'Bogus', artist: 'Don toliver', album: 'Red', id: 2, uri: 'spotify:track:xxxx' },
-    { name: 'Song A', artist: 'Artist A', album: 'Album A', id: 3, uri: 'spotify:track:xxxx' },
-    { name: 'Song B', artist: 'Artist B', album: 'Album B', id: 4, uri: 'spotify:track:xxxx' }
-  ]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
   const [playlistName, setPlaylistName] = useState('');
   const [playlistTracks, setPlaylistTracks] = useState([]);
 
   const handlePlaylistNameChange = (e) => setPlaylistName(e.target.value);
+  const handleSearchTermChange = (e) => setSearchTerm(e.target.value);
 
   const addTrack = (track) => {
     if (!playlistTracks.find((searchTrack) => searchTrack.id === track.id)) {
@@ -27,9 +25,15 @@ function App() {
     setPlaylistTracks(prev => prev.filter((searchTrack) => searchTrack.id !== track.id))
   }
 
-  const savePlaylist = () => {
-    const trackUris = playlistTracks.map(t => t.uri)
-    console.log(playlistName, trackUris)
+
+  const handleSearch = async () => {
+    const results = await Spotify.search(searchTerm)
+    setSearchResults(results);
+  }
+
+  const handleSaveToSpotify = async () => {
+    const trackUris = playlistTracks.map(track => track.uri);
+    await Spotify.savePlaylist(playlistName, trackUris);
 
     setPlaylistName('');
     setPlaylistTracks([]);
@@ -37,10 +41,10 @@ function App() {
 
   return (
     <main>
-      <SearchBar />
+      <SearchBar onTermChange={handleSearchTermChange} searchTerm={searchTerm} onSearch={handleSearch} />
       <section className='App'>
         <SearchResults searchResults={searchResults} onAddTrack={addTrack} />
-        <Playlist playlistName={playlistName} playlistTracks={playlistTracks} onPlaylistNameChange={handlePlaylistNameChange} onRemoveTrack={removeTrack} onSave={savePlaylist} />
+        <Playlist playlistName={playlistName} playlistTracks={playlistTracks} onPlaylistNameChange={handlePlaylistNameChange} onRemoveTrack={removeTrack} onSave={handleSaveToSpotify} />
       </section>
     </main>
   )
